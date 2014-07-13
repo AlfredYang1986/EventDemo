@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-theme.css" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <title>Hello World</title>
+    </head>
+    <body ng-app="PersonalEvent">
+
+        <ng-view></ng-view>
+
+        <!-- login view -->
+        <div ng-controller="AuthController" style="margin-top: 20px">
+            Username: <input type="text" ng-model="username" />
+            <br>
+            Password: <input type="password" ng-model="password" />
+            <br>
+            <botton class="btn btn-primary" ng-click="login()">Loign</button>
+        </div>
+
+        <!-- search view -->
+        <div ng-controller="SearchController" style="margin-top: 20px" >
+            <input type="text" ng-model="searchinput" />
+            <button class="btn btn-primary" ng-click="search()">search</button>
+            {{searchinput}}
+            <div id="searchResult" >
+            </div>
+        </div>
+
+        <!-- detail -->
+        <div ng-controller="DetailController" style="margin-top: 20px" >
+            ItemID: {{itemID}}
+        </div>
+
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+        <!-- // <script type="text/javascript" src="angular/angular.js"></script> -->
+        <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+
+        <script type="text/ng-template" id="login.html">
+            <h3>TODO: login page</h3>
+        </script>
+
+        <script type="text/ng-template" id="search.html">
+            <h3>TODO: search page</h3>
+        </script>
+
+        <script type="text/ng-template" id="detail.html">
+            <h3>TODO: detail page</h3>
+        </script>
+
+        <script type="text/javascript">
+            app.initialize();
+            
+            var ang_app = angular.module("PersonalEvent", []);
+
+            ang_app.config(function($routeProvider) {
+                $routeProvider.
+                    when("/login", { templateUrl: "login.html" }).
+                    when("/search", { templateUrl: "search.html" }).
+                    when("/detail", { templateUrl: "detail.html" }).
+                    otherwise({ redirectTo: "/login" });
+            });
+            
+            ang_app.controller("AuthController", function($scope) {
+                $scope.username = "";
+                $scope.password = "";
+
+                $scope.login = function() {
+                    // Login Model
+                };
+            });
+
+            ang_app.controller("SearchController", function($scope) {
+                $scope.searchinput = "";
+
+                $scope.photeStream = new PhotoStream();
+
+                $scope.search = function() {
+                    alert("Alfred");
+                };
+            });
+
+            ang_app.controller("DetailController", function($scope) {
+                $scope.itemID = 1;
+            });
+            
+            function PhotoStream() {
+                this.current_page = 0;
+                this.item_width = 50;
+                this.item_extend_height = 10;
+                this.item_min_height = 50;
+                this.item_margin_between = 5;
+                this.current_last_pos = [];
+            }
+
+            PhotoStream.prototype.reset = function(wnd_width) {
+                var col = wnd_width / (item_width + item_margin_between) - 1;
+                current_last_pos = [];
+                current_last_pos.length = 0;
+                for (var index = 0; index < col; ++index) {
+                    current_last_pos.push(0);
+                }
+            }
+
+            PhotoStream.prototype.find_col_insert = function() {
+                var col_in = 0;
+                for (var index = 0; index < current_last_pos.length; ++index) {
+                    if(current_last_pos[col_in] > current_last_pos[index])
+                        col_in = index;
+                }
+                return col_in;
+            }
+
+            PhotoStream.prototype.next_x_position = function() {
+                var t = (item_width + item_margin_between) * find_col_insert();
+                return t;
+            }
+
+            PhotoStream.prototype.next_y_position = function() {
+                return current_last_pos[find_col_insert()];
+            }
+
+            PhotoStream.prototype.post_insert = function(img_height) {
+                var index = find_col_insert();
+                current_last_pos[index] += Math.max(img_height, item_min_height) + item_extend_height;
+            }
+
+            PhotoStream.prototype.layout_one = function(obj) {
+                obj[0].style.position = "absolute";
+                obj[0].style.left = next_x_position() + "px";
+                obj[0].style.top = next_y_position() + "px";
+                var img = $(obj).find('.search-details').first();
+                $(img).css({
+                    "height": $(img).naturalHeight() * $(img).naturalWidth / item_width,
+                    "width" : item_width
+                });
+                var t = img.naturalHeight() * 1.0 * item_width / img.naturalWidth();
+                post_insert(t);
+                obj.fadeIn(400);
+            }
+
+            PhotoStream.prototype.layout_all = function() {
+                reset($('#page-wapper').width());
+                $('#searchResult > .item').each(function(index, obj) {
+                    layout_one($(obj));
+                });
+            }
+
+            PhotoStream.prototype.layout = function() {
+                $('.' + current_page).each(function(index, obj) {
+                    layout_one($(obj));
+                });
+            }
+        </script>
+    </body>
+</html>
